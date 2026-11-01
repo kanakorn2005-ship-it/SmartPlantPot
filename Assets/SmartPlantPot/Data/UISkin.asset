@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98015de78a1a02a4db2e32d37bf7e3b3, type: 3}
+  m_Name: UISkin
+  m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.UISkin
+  font: {fileID: 12800000, guid: 9908405b13d4c0445a0c24cf98e2ab6f, type: 3}
+  fontBold: {fileID: 12800000, guid: 8c6bd1685b6832e42ab0fcd28585f8d5, type: 3}
+  rounded: {fileID: 21300000, guid: 29da59a9cb974460aeba3532e3e79cb5, type: 3}
+  circle: {fileID: 21300000, guid: 43d42575a3164ac99abc2ac2cdb7c11b, type: 3}
+  shadow: {fileID: 21300000, guid: 81c9ebc079614d11850c8214fd3e6c91, type: 3}
+  glow: {fileID: 21300000, guid: b4dac5fa805a4ecfa3efda536ab2d24a, type: 3}
+  sparkle: {fileID: 21300000, guid: 0ee6e8f9d12b47e3aba21ade20d12347, type: 3}
+  drop: {fileID: 21300000, guid: 454b45207e4649469d8896eda5eb8977, type: 3}
+  leaf: {fileID: 21300000, guid: 4581b58510cf4812877de216fe7f2255, type: 3}
+  iconMoisture: {fileID: 21300000, guid: b3d409ea140c4d5a905f858ce01ec58a, type: 3}
+  iconTemperature: {fileID: 21300000, guid: 7124c72421eb4f969d43813f250e6aec, type: 3}
+  iconLight: {fileID: 21300000, guid: ceb8110b8f5f4caa8145c796c1390313, type: 3}
+  iconBell: {fileID: 21300000, guid: 17a4a312cda4445eb28642d1e11cf4a4, type: 3}
+  iconScissors: {fileID: 21300000, guid: eb15ddd4f3784292b609f108a08e5940, type: 3}
+  iconClose: {fileID: 21300000, guid: 5ee3ac6eabc04977a67bdddd65b59307, type: 3}
+  iconAlert: {fileID: 21300000, guid: d7b93eb85a1a4ba481f348084de17ab5, type: 3}
+  iconCheck: {fileID: 21300000, guid: 9bf562fb8af04ec9ab38adb12b8e89d6, type: 3}
+  iconSprout: {fileID: 21300000, guid: 960c6b52e1cc4798925e2b4e71b497ef, type: 3}
+  iconInfo: {fileID: 21300000, guid: 282d9f9f82e44363a0eb40071a179919, type: 3}
+  iconCare: {fileID: 21300000, guid: 17a5fcf76387466fa7a061a34674bf6a, type: 3}
+  background: {r: 0.93333334, g: 0.95686275, b: 0.9254902, a: 1}
+  floor: {r: 0.9098039, g: 0.8627451, b: 0.7764706, a: 1}
+  shelf: {r: 0.7254902, g: 0.5411765, b: 0.36862746, a: 1}
+  shelfShadow: {r: 0.54901963, g: 0.39215687, b: 0.2509804, a: 1}
+  surface: {r: 1, g: 1, b: 1, a: 1}
+  infoCard: {r: 0.8901961, g: 0.9764706, b: 0.9843137, a: 1}
+  textPrimary: {r: 0.12156863, g: 0.22745098, b: 0.18039216, a: 1}
+  textMuted: {r: 0.38431373, g: 0.46666667, b: 0.42745098, a: 1}
+  accent: {r: 0.18039216, g: 0.54901963, b: 0.52156866, a: 1}
+  accentDark: {r: 0.11764706, g: 0.41960785, b: 0.4, a: 1}
+  statusNormal: {r: 0.23137255, g: 0.64705884, b: 0.36078432, a: 1}
+  statusLow: {r: 0.9411765, g: 0.627451, b: 0.1882353, a: 1}
+  statusHigh: {r: 0.8980392, g: 0.3254902, b: 0.29411766, a: 1}
+  water: {r: 0.30980393, g: 0.6627451, b: 0.9098039, a: 1}
+  leafColor: {r: 0.3647059, g: 0.6666667, b: 0.2901961, a: 1}
