@@ -9,7 +9,9 @@ namespace SmartPlantPot
         Warning = 0,   // a value went too low / too high
         Recovered = 1, // a value came back into range
         Care = 2,      // the user watered / pruned
-        Refused = 3    // a care action was refused (e.g. soil still wet)
+        Refused = 3,   // a care action was refused (e.g. soil still wet)
+        Reward = 4,    // points earned (selling)
+        GameEvent = 5  // daily event, streak, mutation, weather
     }
 
     public class PlantAlert
@@ -88,11 +90,33 @@ namespace SmartPlantPot
         {
             p.StatusChanged -= OnStatusChanged;
             p.StatusChanged += OnStatusChanged;
+            p.SpeciesChanged -= OnSpeciesChanged;
+            p.SpeciesChanged += OnSpeciesChanged;
         }
 
         void Unhook(PlantUnit p)
         {
             p.StatusChanged -= OnStatusChanged;
+            p.SpeciesChanged -= OnSpeciesChanged;
+        }
+
+        void OnSpeciesChanged(PlantUnit p)
+        {
+            lastWarningTime.Remove(p);
+        }
+
+        /// <summary>Game messages (sold, streak, mutation, daily event). Shown as a toast and kept in history.</summary>
+        public void PostInfo(PlantUnit plant, string title, string message, AlertKind kind, bool countAsUnread = false)
+        {
+            Raise(new PlantAlert
+            {
+                plant = plant,
+                kind = kind,
+                title = title,
+                message = message,
+                time = DateTime.Now,
+                read = !countAsUnread
+            });
         }
 
         float[] WarningTimes(PlantUnit p)

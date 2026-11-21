@@ -18,6 +18,8 @@ namespace SmartPlantPot
                 case AlertKind.Warning: return skin.StatusColor(a.status);
                 case AlertKind.Recovered: return skin.statusNormal;
                 case AlertKind.Care: return skin.accent;
+                case AlertKind.Reward: return skin.gold;
+                case AlertKind.GameEvent: return skin.eventColor;
                 default: return skin.statusLow;
             }
         }
@@ -29,6 +31,8 @@ namespace SmartPlantPot
                 case AlertKind.Warning: return skin.iconAlert;
                 case AlertKind.Recovered: return skin.iconCheck;
                 case AlertKind.Care: return skin.iconCare;
+                case AlertKind.Reward: return skin.iconCoins != null ? skin.iconCoins : skin.iconInfo;
+                case AlertKind.GameEvent: return skin.iconSparkles != null ? skin.iconSparkles : skin.iconInfo;
                 default: return skin.iconInfo;
             }
         }

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c9649fdf1b87e47b65f5f4773e10fd, type: 3}
+  m_Name: PlantCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantCatalog
+  builtIn:
+  - {fileID: 11400000, guid: 1618b2f1e91670b4bb3dcdba7efd39e9, type: 2}
+  - {fileID: 11400000, guid: 1afba8c4bc6b69d4ba779b533c08aa1c, type: 2}
+  - {fileID: 11400000, guid: c5013140cf045f649a67e7be4bb6f9bf, type: 2}
+  - {fileID: 11400000, guid: a635e8a1578605847b6126f1e1f27176, type: 2}
+  - {fileID: 11400000, guid: 9fcb71b8a3fddbf4ab18d8805c006b5f, type: 2}
+  potPrefab: {fileID: 711763354711685954, guid: 4e430037d988a434d95f167a48aba329, type: 3}
+  customSeedSprite: {fileID: 21300000, guid: 954d7147a7974a6ca96910367d214669, type: 3}

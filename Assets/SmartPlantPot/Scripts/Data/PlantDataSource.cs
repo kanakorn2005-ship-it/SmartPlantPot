@@ -24,6 +24,11 @@ namespace SmartPlantPot
         /// <summary>Remote care: ask the pot to water / record a prune.</summary>
         public abstract void SendCareCommand(PlantUnit plant, CareAction action);
 
+        /// <summary>Move the pot's servo valve (0 = closed, 90 = water, 180 = fertilizer) for some seconds (0 = hold).</summary>
+        public virtual void SendServo(PlantUnit plant, float angle, float seconds)
+        {
+        }
+
         protected virtual void OnEnable()
         {
             Active = this;

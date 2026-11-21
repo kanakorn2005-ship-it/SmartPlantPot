@@ -3,7 +3,7 @@ namespace SmartPlantPot
     /// <summary>
     /// Every user-facing string in Thai and English. Switch with SmartPlantPotApp.thaiLanguage.
     /// </summary>
-    public static class L
+    public static partial class L
     {
         public static bool Thai = true;
 

@@ -32,6 +32,31 @@ MonoBehaviour:
   iconSprout: {fileID: 21300000, guid: 960c6b52e1cc4798925e2b4e71b497ef, type: 3}
   iconInfo: {fileID: 21300000, guid: 282d9f9f82e44363a0eb40071a179919, type: 3}
   iconCare: {fileID: 21300000, guid: 17a5fcf76387466fa7a061a34674bf6a, type: 3}
+  iconCoins: {fileID: 21300000, guid: c299e716108842018b49d08c9880dbb1, type: 3}
+  iconStore: {fileID: 21300000, guid: 3f2910e03d6e4dbc9b920c8aaa439660, type: 3}
+  iconSettings: {fileID: 21300000, guid: 1fa3cb166bac4b009b00621a84257b30, type: 3}
+  iconFlame: {fileID: 21300000, guid: b22ed1f85f254b36a5dcea0edc78856f, type: 3}
+  iconSparkles: {fileID: 21300000, guid: c6181a1afbbe4c0e9888706c1ed8e444, type: 3}
+  iconFertilizer: {fileID: 21300000, guid: 5c3d8fa0562747bab989ea131171ab1c, type: 3}
+  iconGauge: {fileID: 21300000, guid: 6a9e637b822148359e0ee5e14158f701, type: 3}
+  iconPlus: {fileID: 21300000, guid: 39e1671b603e45a39bfeebd799ac86cb, type: 3}
+  iconTrash: {fileID: 21300000, guid: 3907611d712e4d0d82f1d7df973f0708, type: 3}
+  iconCalendar: {fileID: 21300000, guid: 77b918926dd346c0bd54bb3d88b3b98f, type: 3}
+  iconClock: {fileID: 21300000, guid: 9207c85c9a4d4547a3e6e6c227b44c2d, type: 3}
+  iconWifi: {fileID: 21300000, guid: d4a3b33bc17c49d298e3d7a29d0456b5, type: 3}
+  iconFastForward: {fileID: 21300000, guid: 6786b959b2e84d4ab47737a686108816, type: 3}
+  iconMoon: {fileID: 21300000, guid: c7b8f5ac5f6045f4b9dbaf675251ad92, type: 3}
+  iconCloud: {fileID: 21300000, guid: 30c2519d6f9d46a5aef737819ff3c955, type: 3}
+  iconCloudSun: {fileID: 21300000, guid: 79ba2ffe34954575bffa1dfe61f17673, type: 3}
+  iconCloudRain: {fileID: 21300000, guid: 90a3e3c4cb6c455da9c42d710c948474, type: 3}
+  iconCloudStorm: {fileID: 21300000, guid: 6e053f4a1d0d4ff49379d4aed1e40bea, type: 3}
+  iconCloudFog: {fileID: 21300000, guid: f6b7089a0c60491fb5e3b510e5fd2e39, type: 3}
+  iconStar: {fileID: 21300000, guid: b5f4578870f24fc9a3b204e91bf04782, type: 3}
+  iconPackage: {fileID: 21300000, guid: 130386efc1a740b9b95269cd94e9d452, type: 3}
+  iconBag: {fileID: 21300000, guid: 04830535b3fb4d9e97b4c3ddbd7c39b5, type: 3}
+  iconRefresh: {fileID: 21300000, guid: 3bcbdb9d939b41b4921a8ae62c08db35, type: 3}
+  iconSliders: {fileID: 21300000, guid: d9f6a10e2df84cd18dbb1ce1ca891e55, type: 3}
+  iconWrench: {fileID: 21300000, guid: d0db495ffeed41be84fba37a0df46b5a, type: 3}
   background: {r: 0.93333334, g: 0.95686275, b: 0.9254902, a: 1}
   floor: {r: 0.9098039, g: 0.8627451, b: 0.7764706, a: 1}
   shelf: {r: 0.7254902, g: 0.5411765, b: 0.36862746, a: 1}
@@ -47,3 +72,7 @@ MonoBehaviour:
   statusHigh: {r: 0.8980392, g: 0.3254902, b: 0.29411766, a: 1}
   water: {r: 0.30980393, g: 0.6627451, b: 0.9098039, a: 1}
   leafColor: {r: 0.3647059, g: 0.6666667, b: 0.2901961, a: 1}
+  gold: {r: 0.9019608, g: 0.65882355, b: 0.09019608, a: 1}
+  flame: {r: 1, g: 0.41960785, b: 0.17254902, a: 1}
+  eventColor: {r: 0.5568628, g: 0.35686275, b: 0.8509804, a: 1}
+  panelDim: {r: 0.06, g: 0.12, b: 0.09, a: 0.45}

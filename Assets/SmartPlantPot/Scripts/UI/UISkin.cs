@@ -37,6 +37,33 @@ namespace SmartPlantPot
         public Sprite iconInfo;
         public Sprite iconCare;
 
+        [Header("Game icons (3D shop)")]
+        public Sprite iconCoins;
+        public Sprite iconStore;
+        public Sprite iconSettings;
+        public Sprite iconFlame;
+        public Sprite iconSparkles;
+        public Sprite iconFertilizer;
+        public Sprite iconGauge;
+        public Sprite iconPlus;
+        public Sprite iconTrash;
+        public Sprite iconCalendar;
+        public Sprite iconClock;
+        public Sprite iconWifi;
+        public Sprite iconFastForward;
+        public Sprite iconMoon;
+        public Sprite iconCloud;
+        public Sprite iconCloudSun;
+        public Sprite iconCloudRain;
+        public Sprite iconCloudStorm;
+        public Sprite iconCloudFog;
+        public Sprite iconStar;
+        public Sprite iconPackage;
+        public Sprite iconBag;
+        public Sprite iconRefresh;
+        public Sprite iconSliders;
+        public Sprite iconWrench;
+
         [Header("Palette")]
         public Color background = Hex("EEF4EC");
         public Color floor = Hex("E8DCC6");
@@ -53,6 +80,10 @@ namespace SmartPlantPot
         public Color statusHigh = Hex("E5534B");
         public Color water = Hex("4FA9E8");
         public Color leafColor = Hex("5DAA4A");
+        public Color gold = Hex("E6A817");
+        public Color flame = Hex("FF6B2C");
+        public Color eventColor = Hex("8E5BD9");
+        public Color panelDim = new Color(0.06f, 0.12f, 0.09f, 0.45f);
 
         public Color StatusColor(MetricStatus status)
         {
@@ -71,6 +102,19 @@ namespace SmartPlantPot
                 case PlantMetric.Moisture: return iconMoisture;
                 case PlantMetric.Temperature: return iconTemperature;
                 default: return iconLight;
+            }
+        }
+
+        public Sprite WeatherIcon(WeatherKind kind, bool night)
+        {
+            switch (kind)
+            {
+                case WeatherKind.Clear: return night ? iconMoon : iconLight;
+                case WeatherKind.PartlyCloudy: return night ? iconMoon : iconCloudSun;
+                case WeatherKind.Cloudy: return iconCloud;
+                case WeatherKind.Fog: return iconCloudFog;
+                case WeatherKind.Storm: return iconCloudStorm;
+                default: return iconCloudRain;
             }
         }
 

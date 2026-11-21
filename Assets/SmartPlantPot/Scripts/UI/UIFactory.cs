@@ -239,15 +239,14 @@ namespace SmartPlantPot
             }
 
             var main = Camera.main;
-            var rend = target.GetComponentInChildren<Renderer>();
             if (main == null) return new Rect(0f, 0f, 100f, 100f);
-            if (rend == null)
+            Bounds bounds;
+            if (!WorldBounds(target, out bounds))
             {
                 Vector3 p = main.WorldToScreenPoint(target.position);
                 return new Rect(p.x - 60f, p.y - 60f, 120f, 120f);
             }
 
-            var bounds = rend.bounds;
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
             Vector2 max = new Vector2(float.MinValue, float.MinValue);
             for (int i = 0; i < 8; i++)
@@ -259,6 +258,24 @@ namespace SmartPlantPot
                 max = Vector2.Max(max, s);
             }
             return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
+        /// <summary>Combined bounds of every visible renderer under a 3D object.</summary>
+        public static bool WorldBounds(Transform target, out Bounds bounds)
+        {
+            bounds = new Bounds(target.position, Vector3.zero);
+            bool any = false;
+            foreach (var r in target.GetComponentsInChildren<Renderer>())
+            {
+                if (!r.enabled || !r.gameObject.activeInHierarchy || r is ParticleSystemRenderer) continue;
+                if (!any)
+                {
+                    bounds = r.bounds;
+                    any = true;
+                }
+                else bounds.Encapsulate(r.bounds);
+            }
+            return any;
         }
 
         /// <summary>Converts a screen rect into the local space of a RectTransform (overlay canvas).</summary>

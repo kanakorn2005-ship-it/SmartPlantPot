@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8553a69b6b47c404593c25194d01d170, type: 3}
+  m_Name: Species_CylindricalSnake
+  m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantSpecies
+  id: cylindrical_snake
+  nameThai: "\u0E15\u0E49\u0E19\u0E27\u0E48\u0E32\u0E19\u0E07\u0E32\u0E0A\u0E49\u0E32\u0E07"
+  nameEnglish: Cylindrical Snake Plant
+  sprite: {fileID: 0}
+  seedSprite: {fileID: 21300000, guid: 91a1f4395e614b95bda67469195a6062, type: 3}
+  modelPrefab: {fileID: 989922835367702706, guid: 163203a243cd3ac4e9437b39f230cb5a, type: 3}
+  modelId: 
+  seedPrice: 50
+  sellPrice: 160
+  dailyPoints: 16
+  growMinutes: 25
+  moisture:
+    min: 25
+    max: 60
+  temperature:
+    min: 18
+    max: 35
+  light:
+    min: 150
+    max: 15000
+  demoReading:
+    moisture: 42
+    temperature: 28
+    light: 900

@@ -60,6 +60,21 @@ namespace SmartPlantPot
             phase = Random.value * 10f;
         }
 
+        /// <summary>Point the wobble at a different visual (e.g. the 3D plant after planting a seed).</summary>
+        public void SetArt(Transform newArt)
+        {
+            if (art != null && art != newArt)
+            {
+                art.localScale = baseScale;
+                art.localRotation = baseRotation;
+            }
+            art = newArt != null ? newArt : transform;
+            baseScale = art.localScale;
+            baseRotation = art.localRotation;
+            scale = Vector2.one;
+            velocity = Vector2.zero;
+        }
+
         void Update()
         {
             float dt = Mathf.Min(Time.unscaledDeltaTime, 0.05f);
@@ -75,7 +90,8 @@ namespace SmartPlantPot
             Vector2 force = (target - scale) * stiffness - velocity * damping;
             velocity += force * dt;
             scale += velocity * dt;
-            art.localScale = new Vector3(baseScale.x * scale.x, baseScale.y * scale.y, baseScale.z);
+            if (art == null) return;
+            art.localScale = new Vector3(baseScale.x * scale.x, baseScale.y * scale.y, baseScale.z * scale.x);
 
             float angle = 0f;
             if (sway)
@@ -135,6 +151,35 @@ namespace SmartPlantPot
         {
             message = null;
             if (plant == null || IsBusy) return false;
+            if (plant.IsEmpty)
+            {
+                message = L.T("ปลูกเมล็ดก่อนนะ", "Plant a seed first");
+                Shake();
+                return false;
+            }
+
+            var servo = GetComponent<PotServo>();
+
+            if (action == CareAction.Fertilize)
+            {
+                var growth = GetComponent<PlantGrowth>();
+                if (growth == null) return false;
+                if (!growth.CanFertilize)
+                {
+                    message = L.T("ให้ปุ๋ยไปแล้ววันนี้ พรุ่งนี้ค่อยให้ใหม่", "Already fertilized today - try tomorrow");
+                    Shake();
+                    return false;
+                }
+                growth.Fertilize();
+                busyUntil = Time.unscaledTime + waterCooldown;
+                happyUntil = busyUntil + 2f;
+                if (servo != null) servo.Pulse(ServoAction.Fertilize);
+                else if (PlantDataSource.Active != null) PlantDataSource.Active.SendCareCommand(plant, CareAction.Fertilize);
+                if (EffectsLayer.Instance != null) EffectsLayer.Instance.Sparkles(art, UISkin.Current != null ? UISkin.Current.leafColor : Color.green, 8);
+                Kick(new Vector2(-0.4f, 1.0f));
+                message = L.T("ให้ปุ๋ย" + plant.DisplayName + "แล้ว โตเร็วขึ้น 2 เท่า 10 นาที", "Fertilized - grows 2x faster for 10 min");
+                return true;
+            }
 
             if (action == CareAction.Water)
             {
@@ -149,7 +194,9 @@ namespace SmartPlantPot
                 happyUntil = busyUntil + 2f;
                 if (EffectsLayer.Instance != null) EffectsLayer.Instance.PlayWater(art);
                 Kick(new Vector2(0.5f, -0.6f));
-                if (PlantDataSource.Active != null) PlantDataSource.Active.SendCareCommand(plant, CareAction.Water);
+                // With a servo valve the water really flows through it; otherwise send a one-off command.
+                if (servo != null) servo.Pulse(ServoAction.Water);
+                else if (PlantDataSource.Active != null) PlantDataSource.Active.SendCareCommand(plant, CareAction.Water);
                 message = L.Watered(plant.DisplayName);
                 return true;
             }

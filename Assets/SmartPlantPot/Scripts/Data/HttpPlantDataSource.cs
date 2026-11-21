@@ -63,13 +63,46 @@ namespace SmartPlantPot
             public string action;
         }
 
-        IEnumerator Start()
+        [Serializable]
+        class ServoJson
         {
-            while (enabled)
+            public string id;
+            public string action;
+            public float angle;
+            public float seconds;
+        }
+
+        // Restart polling every time the source is switched on (Mock panel toggles it).
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            StartCoroutine(PollLoop());
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            StopAllCoroutines();
+            if (connected)
+            {
+                connected = false;
+                RaiseConnectionChanged();
+            }
+        }
+
+        IEnumerator PollLoop()
+        {
+            while (true)
             {
                 yield return Poll();
                 yield return new WaitForSecondsRealtime(Mathf.Max(0.25f, pollInterval));
             }
+        }
+
+        /// <summary>Poll once right now (Mock panel "test connection").</summary>
+        public void PollNow()
+        {
+            if (isActiveAndEnabled) StartCoroutine(Poll());
         }
 
         IEnumerator Poll()
@@ -141,12 +174,24 @@ namespace SmartPlantPot
         public override void SendCareCommand(PlantUnit plant, CareAction action)
         {
             if (plant == null || string.IsNullOrEmpty(commandUrl)) return;
-            StartCoroutine(PostCommand(plant.potId, action == CareAction.Water ? "water" : "prune"));
+            string a = action == CareAction.Water ? "water" : action == CareAction.Fertilize ? "fertilize" : "prune";
+            StartCoroutine(PostCommand(plant.potId, a));
+        }
+
+        public override void SendServo(PlantUnit plant, float angle, float seconds)
+        {
+            if (plant == null || string.IsNullOrEmpty(commandUrl)) return;
+            var body = JsonUtility.ToJson(new ServoJson { id = plant.potId, action = "servo", angle = angle, seconds = seconds });
+            StartCoroutine(PostJson(body));
         }
 
         IEnumerator PostCommand(string id, string action)
         {
-            var body = JsonUtility.ToJson(new CommandJson { id = id, action = action });
+            return PostJson(JsonUtility.ToJson(new CommandJson { id = id, action = action }));
+        }
+
+        IEnumerator PostJson(string body)
+        {
             using (var req = new UnityWebRequest(commandUrl, "POST"))
             {
                 req.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));

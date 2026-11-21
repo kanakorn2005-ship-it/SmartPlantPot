@@ -12,9 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8553a69b6b47c404593c25194d01d170, type: 3}
   m_Name: Species_SnakePlant
   m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantSpecies
+  id: snake_plant
   nameThai: "\u0E15\u0E49\u0E19\u0E25\u0E34\u0E49\u0E19\u0E21\u0E31\u0E07\u0E01\u0E23"
   nameEnglish: Snake Plant
   sprite: {fileID: 21300000, guid: 50017053a1b1405eae36f425bfa877eb, type: 3}
+  seedSprite: {fileID: 21300000, guid: 94ab3f9775584919bfea06860268c5a4, type: 3}
+  modelPrefab: {fileID: 1624415424261819346, guid: 37fe2e174391a91409f6d92e149611ad, type: 3}
+  modelId: 
+  seedPrice: 40
+  sellPrice: 150
+  dailyPoints: 12
+  growMinutes: 25
   moisture:
     min: 40
     max: 75

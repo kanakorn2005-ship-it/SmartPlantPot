@@ -49,6 +49,12 @@ namespace SmartPlantPot
         [Tooltip("Speed up the simulated world for demos.")]
         public float timeScale = 1f;
 
+        [Tooltip("Soil moisture added per second while a pot's servo valve is open on water (90°).")]
+        public float servoFlowPerSecond = 7f;
+
+        [Tooltip("Follow the real day/night + weather (needs DayNightCycle / WeatherService in the scene).")]
+        public bool followEnvironment = true;
+
         public List<PotSim> pots = new List<PotSim>();
 
         float timer;
@@ -84,16 +90,27 @@ namespace SmartPlantPot
                     s.moisture = Mathf.Min(100f, s.moisture + add);
                 }
 
+                // Servo valve open on "water": soil gets wetter for as long as it stays open.
+                var servo = plant.GetComponent<PotServo>();
+                if (servo != null && servo.IsWatering)
+                    s.moisture = Mathf.Min(100f, s.moisture + servoFlowPerSecond * Time.deltaTime);
+
                 if (s.manual) continue;
 
                 s.moisture = Mathf.Max(0f, s.moisture - dryingPerMinute / 60f * dt);
 
                 float wave = Mathf.Sin(simTime * (Mathf.PI * 2f / 180f) + s.seed * 6.283f);
                 float jitter = (Mathf.PerlinNoise(simTime * 0.05f, s.seed * 10f) - 0.5f) * 0.6f;
-                s.temperature = s.baseTemperature + wave * temperatureSwing + jitter;
+                float baseTemp = s.baseTemperature;
+                if (followEnvironment && EnvironmentState.HasEnvironment && !float.IsNaN(EnvironmentState.OutdoorTemperature))
+                    baseTemp = Mathf.Lerp(s.baseTemperature, EnvironmentState.OutdoorTemperature, 0.45f);
+                s.temperature = baseTemp + wave * temperatureSwing + jitter;
 
                 float l = Mathf.PerlinNoise(simTime * 0.04f + 100f, s.seed * 7f) * 2f - 1f;
-                s.light = Mathf.Max(0f, s.baseLight * (1f + l * lightSwing));
+                float daylight = 1f;
+                if (followEnvironment && EnvironmentState.HasEnvironment)
+                    daylight = Mathf.Lerp(0.04f, 1f, EnvironmentState.Daylight01) * (1f - 0.6f * EnvironmentState.CloudFactor);
+                s.light = Mathf.Max(0f, s.baseLight * daylight * (1f + l * lightSwing));
             }
 
             timer += Time.deltaTime;
@@ -113,7 +130,8 @@ namespace SmartPlantPot
             }
         }
 
-        PotSim GetSim(PlantUnit plant)
+        /// <summary>The simulated values for a pot (the Mock panel reads and writes these).</summary>
+        public PotSim GetSim(PlantUnit plant)
         {
             PotSim sim = null;
             foreach (var p in pots)
@@ -153,26 +171,33 @@ namespace SmartPlantPot
             // Pruning has no sensor effect; the visual is handled by PotInteraction.
         }
 
+        /// <summary>Push the current simulated values to the pot right away (used by the Mock sliders).</summary>
+        public void SendNow(PlantUnit plant)
+        {
+            var s = GetSim(plant);
+            plant.ApplyReading(new SensorReading(s.moisture, s.temperature, s.light));
+        }
+
         [ContextMenu("Dry out every pot (test moisture alerts)")]
-        void DryAll()
+        public void DryAll()
         {
             foreach (var plant in PlantUnit.All) GetSim(plant).moisture = 15f;
         }
 
         [ContextMenu("Heat wave (test temperature alerts)")]
-        void HeatWave()
+        public void HeatWave()
         {
             foreach (var plant in PlantUnit.All) GetSim(plant).baseTemperature = 36f;
         }
 
         [ContextMenu("Cloudy day (test light alerts)")]
-        void Cloudy()
+        public void Cloudy()
         {
             foreach (var plant in PlantUnit.All) GetSim(plant).baseLight = 120f;
         }
 
         [ContextMenu("Reset to species start values")]
-        void ResetValues()
+        public void ResetValues()
         {
             foreach (var p in pots)
             {

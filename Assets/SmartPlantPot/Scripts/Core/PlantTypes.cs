@@ -23,7 +23,28 @@ namespace SmartPlantPot
     public enum CareAction
     {
         Water = 0,
-        Prune = 1
+        Prune = 1,
+        Fertilize = 2
+    }
+
+    /// <summary>Growth stages of a planted pot.</summary>
+    public enum GrowthStage
+    {
+        Empty = 0,
+        Seed = 1,
+        Seedling = 2,
+        Young = 3,
+        Mature = 4
+    }
+
+    /// <summary>Rare variations that appear after a care streak and raise the sell price.</summary>
+    public enum Mutation
+    {
+        None = 0,
+        Golden = 1,
+        Variegated = 2,
+        Giant = 3,
+        Rainbow = 4
     }
 
     /// <summary>Ideal range for one metric. Values outside it raise an alert.</summary>

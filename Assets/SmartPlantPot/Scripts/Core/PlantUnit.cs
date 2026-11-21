@@ -28,6 +28,9 @@ namespace SmartPlantPot
         /// <summary>Fired when a metric moves between Normal / Low / High. Args: plant, metric, old, new.</summary>
         public event Action<PlantUnit, PlantMetric, MetricStatus, MetricStatus> StatusChanged;
 
+        /// <summary>Fired when a seed is planted or the plant is sold (species becomes null = empty pot).</summary>
+        public event Action<PlantUnit> SpeciesChanged;
+
         readonly MetricStatus[] statuses = new MetricStatus[3];
 
         public SensorReading Reading { get; private set; }
@@ -36,7 +39,22 @@ namespace SmartPlantPot
 
         public string DisplayName
         {
-            get { return species != null ? species.DisplayName : name; }
+            get { return species != null ? species.DisplayName : L.EmptyPot; }
+        }
+
+        /// <summary>An empty pot has sensors but no plant, so it never raises alerts.</summary>
+        public bool IsEmpty
+        {
+            get { return species == null; }
+        }
+
+        /// <summary>Plant a species (or pass null to empty the pot). Clears alert states silently.</summary>
+        public void SetSpecies(PlantSpecies newSpecies)
+        {
+            species = newSpecies;
+            for (int i = 0; i < statuses.Length; i++) statuses[i] = MetricStatus.Normal;
+            if (SpeciesChanged != null) SpeciesChanged(this);
+            if (HasReading) ApplyReading(Reading);
         }
 
         public MetricStatus GetStatus(PlantMetric metric)
@@ -115,6 +133,8 @@ namespace SmartPlantPot
                     var old = statuses[i];
                     float shown = PlantHealth.RoundForDisplay(m, reading.Get(m));
                     var now = PlantHealth.Evaluate(shown, species.GetRange(m), old, PlantHealth.Hysteresis(m));
+                    // Plants don't need light at night: don't nag about darkness after sunset.
+                    if (m == PlantMetric.Light && EnvironmentState.IsNight) now = MetricStatus.Normal;
                     if (now == old) continue;
                     if (changed == null)
                     {

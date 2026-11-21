@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8553a69b6b47c404593c25194d01d170, type: 3}
+  m_Name: Species_Hoya
+  m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantSpecies
+  id: hoya
+  nameThai: "\u0E15\u0E49\u0E19\u0E42\u0E2E\u0E22\u0E48\u0E32"
+  nameEnglish: Hoya (Wax Plant)
+  sprite: {fileID: 0}
+  seedSprite: {fileID: 21300000, guid: 3de2a057e37f4005923f5a179c2ce6d0, type: 3}
+  modelPrefab: {fileID: 1229188431974922356, guid: 6cffa9759530a614f95179d54515d9b5, type: 3}
+  modelId: 
+  seedPrice: 60
+  sellPrice: 200
+  dailyPoints: 22
+  growMinutes: 30
+  moisture:
+    min: 35
+    max: 65
+  temperature:
+    min: 18
+    max: 30
+  light:
+    min: 800
+    max: 20000
+  demoReading:
+    moisture: 50
+    temperature: 26
+    light: 1400

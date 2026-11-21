@@ -51,6 +51,11 @@ namespace SmartPlantPot
             float total = 0f;
             foreach (var m in PlantMetrics.All)
             {
+                if (m == PlantMetric.Light && EnvironmentState.IsNight)
+                {
+                    total += 1f; // darkness at night is normal
+                    continue;
+                }
                 var r = species.GetRange(m);
                 float v = reading.Get(m);
                 float width = Mathf.Max(0.001f, r.max - r.min);

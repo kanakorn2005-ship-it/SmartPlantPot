@@ -12,9 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8553a69b6b47c404593c25194d01d170, type: 3}
   m_Name: Species_Tomato
   m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantSpecies
+  id: tomato
   nameThai: "\u0E15\u0E49\u0E19\u0E21\u0E30\u0E40\u0E02\u0E37\u0E2D\u0E40\u0E17\u0E28"
   nameEnglish: Tomato
   sprite: {fileID: 21300000, guid: 5670ff1b7eec4cb996ad2e7996817ea2, type: 3}
+  seedSprite: {fileID: 21300000, guid: 74f630f278c847a2bfe6ba02788c2fd2, type: 3}
+  modelPrefab: {fileID: 4819814123602202908, guid: 6a88ad0e20fb847458c073e44bd0c827, type: 3}
+  modelId: 
+  seedPrice: 30
+  sellPrice: 120
+  dailyPoints: 20
+  growMinutes: 20
   moisture:
     min: 50
     max: 80

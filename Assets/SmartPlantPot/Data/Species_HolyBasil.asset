@@ -12,9 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8553a69b6b47c404593c25194d01d170, type: 3}
   m_Name: Species_HolyBasil
   m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.PlantSpecies
+  id: holy_basil
   nameThai: "\u0E15\u0E49\u0E19\u0E01\u0E30\u0E40\u0E1E\u0E23\u0E32"
   nameEnglish: Holy Basil
   sprite: {fileID: 21300000, guid: b65c896acdf9417e87bb23f9c9ab5e15, type: 3}
+  seedSprite: {fileID: 21300000, guid: a1b560aec7c9457fa20bde0a553d9242, type: 3}
+  modelPrefab: {fileID: 9129541172051502471, guid: 2247a8653a1a3c342bf3009b91b37f94, type: 3}
+  modelId: 
+  seedPrice: 25
+  sellPrice: 90
+  dailyPoints: 14
+  growMinutes: 15
   moisture:
     min: 50
     max: 80

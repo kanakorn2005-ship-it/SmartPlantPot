@@ -14,7 +14,7 @@ namespace SmartPlantPot.EditorTools
     /// Creates Assets/SmartPlantPot/Scenes/PlantDashboard.unity with every object wired up.
     /// Safe to run again: species / skin assets you edited are kept, only the scene is rebuilt.
     /// </summary>
-    public static class SmartPlantPotSceneBuilder
+    public static partial class SmartPlantPotSceneBuilder
     {
         const string Root = "Assets/SmartPlantPot";
         const string ArtDir = Root + "/Art";
