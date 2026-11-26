@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -34,6 +35,27 @@ namespace SmartPlantPot
         bool connected;
         string lastError = "";
 
+        static readonly HashSet<PlantUnit> realPots = new HashSet<PlantUnit>();
+        static bool sourceEnabled;
+
+        protected override int Priority
+        {
+            get { return 10; }
+        }
+
+        /// <summary>True for pots the real sensors report (the simulator leaves these alone).</summary>
+        public static bool IsReal(PlantUnit plant)
+        {
+            return sourceEnabled && plant != null && realPots.Contains(plant);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetHttpStatics()
+        {
+            realPots.Clear();
+            sourceEnabled = false;
+        }
+
         public override bool IsConnected { get { return connected; } }
         public override string ConnectionLabel { get { return connected ? L.Online : L.Offline; } }
         public string LastError { get { return lastError; } }
@@ -46,6 +68,7 @@ namespace SmartPlantPot
             public float moisture;
             public float temperature;
             public float light;
+            public float humidity = -1f;     // optional (DHT air humidity)
         }
 
         [Serializable]
@@ -76,12 +99,16 @@ namespace SmartPlantPot
         protected override void OnEnable()
         {
             base.OnEnable();
+            sourceEnabled = true;
             StartCoroutine(PollLoop());
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
+            sourceEnabled = false;
+            realPots.Clear();
+            EnvironmentState.SensorLive = false;
             StopAllCoroutines();
             if (connected)
             {
@@ -135,23 +162,55 @@ namespace SmartPlantPot
             json = json.Trim();
             if (json.StartsWith("[")) json = "{\"pots\":" + json + "}";
 
+            roomTemps.Clear();
+            roomLux.Clear();
+            roomHumidity.Clear();
+
             var list = JsonUtility.FromJson<PotListJson>(json);
             if (list != null && list.pots != null && list.pots.Length > 0)
             {
                 foreach (var p in list.pots)
-                {
-                    var plant = Find(p.id);
-                    if (plant != null) plant.ApplyReading(new SensorReading(p.moisture, p.temperature, p.light));
-                }
-                return;
+                    ApplyTo(Find(p.id), p);
+            }
+            else
+            {
+                var one = JsonUtility.FromJson<PotJson>(json);
+                if (one == null) return;
+                var target = Find(one.id);
+                if (target == null) target = singlePotTarget;
+                if (target == null && PlantUnit.All.Count > 0) target = PlantUnit.All[0];
+                ApplyTo(target, one);
             }
 
-            var one = JsonUtility.FromJson<PotJson>(json);
-            if (one == null) return;
-            var target = Find(one.id);
-            if (target == null) target = singlePotTarget;
-            if (target == null && PlantUnit.All.Count > 0) target = PlantUnit.All[0];
-            if (target != null) target.ApplyReading(new SensorReading(one.moisture, one.temperature, one.light));
+            // The pots share one room: publish what the sensors measure so the scene lighting,
+            // the header and the simulated pots follow the real room instead of the weather API.
+            if (roomTemps.Count > 0) EnvironmentState.SensorTemperature = Average(roomTemps);
+            if (roomLux.Count > 0) EnvironmentState.SensorLux = Average(roomLux);
+            if (roomHumidity.Count > 0) EnvironmentState.SensorHumidity = Average(roomHumidity);
+            EnvironmentState.SensorLive = roomTemps.Count > 0 || roomLux.Count > 0;
+        }
+
+        readonly List<float> roomTemps = new List<float>();
+        readonly List<float> roomLux = new List<float>();
+        readonly List<float> roomHumidity = new List<float>();
+
+        void ApplyTo(PlantUnit plant, PotJson p)
+        {
+            if (plant == null || p == null) return;
+            realPots.Add(plant);
+            plant.ApplyReading(new SensorReading(p.moisture, p.temperature, p.light));
+            // 0 °C with no humidity is what the sketch sends before the DHT11 has a first reading
+            bool tempOk = p.temperature > -15f && p.temperature < 70f && !(p.temperature == 0f && p.humidity <= 0f);
+            if (tempOk) roomTemps.Add(p.temperature);
+            if (p.light >= 0f) roomLux.Add(p.light);
+            if (p.humidity > 0f) roomHumidity.Add(p.humidity);
+        }
+
+        static float Average(List<float> values)
+        {
+            float sum = 0f;
+            foreach (var v in values) sum += v;
+            return sum / values.Count;
         }
 
         static PlantUnit Find(string id)
@@ -165,6 +224,7 @@ namespace SmartPlantPot
         void SetConnected(bool value, string error)
         {
             lastError = error;
+            if (!value) EnvironmentState.SensorLive = false;   // fall back to the weather while offline
             if (!value && !string.IsNullOrEmpty(error)) Debug.LogWarning("[SmartPlantPot] " + error);
             if (connected == value) return;
             connected = value;

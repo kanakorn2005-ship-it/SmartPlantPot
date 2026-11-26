@@ -15,6 +15,8 @@ namespace SmartPlantPot
         public List<PotSave> pots = new List<PotSave>();
         public List<SpeciesConfig> species = new List<SpeciesConfig>();
         public GameSettings settings = new GameSettings();
+        public List<string> ownedSkins = new List<string>();
+        public string equippedSkin = "";
     }
 
     [Serializable]

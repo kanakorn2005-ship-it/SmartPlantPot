@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SmartPlantPot
@@ -6,11 +7,21 @@ namespace SmartPlantPot
     /// <summary>
     /// Base class for anything that feeds sensor readings into <see cref="PlantUnit"/>s
     /// (the simulator now, the real ESP32/cloud backend later).
-    /// Only one should be enabled at a time.
+    /// Several can be enabled together (real sensors for some pots, the simulator for the rest);
+    /// <see cref="Active"/> is the enabled one with the highest <see cref="Priority"/> - it drives
+    /// the header status pill and receives care / servo commands.
     /// </summary>
     public abstract class PlantDataSource : MonoBehaviour
     {
         public static PlantDataSource Active { get; private set; }
+
+        static readonly List<PlantDataSource> enabledSources = new List<PlantDataSource>();
+
+        /// <summary>Higher wins when several sources are enabled (real hardware beats the simulator).</summary>
+        protected virtual int Priority
+        {
+            get { return 0; }
+        }
 
         /// <summary>Raised when the connection state / label changes.</summary>
         public event Action ConnectionChanged;
@@ -31,12 +42,25 @@ namespace SmartPlantPot
 
         protected virtual void OnEnable()
         {
-            Active = this;
+            enabledSources.Remove(this);
+            enabledSources.Add(this);
+            PickActive();
         }
 
         protected virtual void OnDisable()
         {
-            if (Active == this) Active = null;
+            enabledSources.Remove(this);
+            PickActive();
+        }
+
+        static void PickActive()
+        {
+            PlantDataSource best = null;
+            foreach (var s in enabledSources)
+                if (s != null && (best == null || s.Priority >= best.Priority)) best = s;
+            if (Active == best) return;
+            Active = best;
+            if (best != null) best.RaiseConnectionChanged();
         }
 
         protected void RaiseConnectionChanged()
@@ -48,6 +72,7 @@ namespace SmartPlantPot
         static void ResetStatics()
         {
             Active = null;
+            enabledSources.Clear();
         }
     }
 }

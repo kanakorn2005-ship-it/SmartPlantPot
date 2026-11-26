@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaa2c7bd10dca3f41b56f301ea53c50f, type: 3}
+  m_Name: MascotSkins
+  m_EditorClassIdentifier: Assembly-CSharp::SmartPlantPot.MascotSkinCatalog
+  skins:
+  - id: bunny_hat
+    nameTh: "\u0E01\u0E23\u0E30\u0E15\u0E48\u0E32\u0E22\u0E04\u0E19\u0E2A\u0E27\u0E19"
+    nameEn: Gardener bunny
+    front: {fileID: 21300000, guid: 90be494d0c1f43fb8eb87b07758cb2d5, type: 3}
+    back: {fileID: 21300000, guid: 3835413d98b2489bbdc6d24e2ca206a5, type: 3}
+    price: 0
+  - id: bunny_glasses
+    nameTh: "\u0E01\u0E23\u0E30\u0E15\u0E48\u0E32\u0E22\u0E41\u0E27\u0E48\u0E19\u0E40\u0E17\u0E48"
+    nameEn: Cool bunny
+    front: {fileID: 21300000, guid: f2765f9e10674b5ebd05e9a9b6ade641, type: 3}
+    back: {fileID: 21300000, guid: 2e83607e0f8d4e53b857087ccbce8f21, type: 3}
+    price: 300
+  - id: boy
+    nameTh: "\u0E19\u0E49\u0E2D\u0E07\u0E2B\u0E21\u0E27\u0E01\u0E41\u0E14\u0E07"
+    nameEn: Red-cap kid
+    front: {fileID: 21300000, guid: a5f172895c7c46be8fb33fe54e83d619, type: 3}
+    back: {fileID: 21300000, guid: bed35780d4b343268ebb5615bf313c36, type: 3}
+    price: 200
+  defaultSkinId: bunny_hat

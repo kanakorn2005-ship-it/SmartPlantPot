@@ -12,7 +12,7 @@ Two scenes, both rebuilt from the **Smart Plant Pot** menu (safe to re-run, your
 
 Press **Play** and try 1920×1080 and the *Phone Portrait (1080×1920)* Game-view size.
 
-Shortcuts: `1` `2` `3` select a pot · `W` water · `P` prune · `F` fertilize · `B` seed shop · `O` settings & Mock · `N` notifications · `Esc` close.
+Shortcuts: `1` `2` `3` select a pot · `W` water · `P` prune · `F` fertilize · `B` shop · `O` settings & Mock · `N` notifications · `R` camera back to the plants · `Esc` close.
 
 ## The 4 Trello cards → where they are
 
@@ -62,7 +62,11 @@ the 3D plant grows from a sprout (0.12 scale) to full size → sell.
 | Mutations ✨ | After a 3-day streak a fully grown plant may mutate: Golden ×2, Variegated ×1.5, Giant ×1.3, Rainbow ×3 (tinted model). | `PlantGrowth.MutationInfo` |
 | Real time & weather | Sun, sky, lamps and ambient light follow the computer's clock (sunrise 06:00, sunset 18:15); light alerts are paused at night. Live weather for Bangkok from Open-Meteo (no API key) every 15 min drives sky, rain, storm flashes and the Mock sensors. Override time / weather / event in **เวลา & อากาศ**. | `GameClock`, `DayNightCycle`, `WeatherService`, `WeatherEffects`, `WeatherOverlay` |
 | Daily events | One per date: ตลาดนัดต้นไม้ (sell ×1.5), เมล็ดลดราคา (−30 %), ลูกค้าตามหา (one species ×2), เทศกาลสวนสวย, แดดดี, ฝนชุ่มฉ่ำ (faster growth). Tap the purple chip for details. | `DailyEvents` |
-| Save | Points, seeds, pots, settings and custom species are saved to `smartplantpot_save.json` (path shown in **ทดสอบเกม**, which also has +100 points, skip day, grow fully, streak +3, mutate and reset). | `SaveData`, `GameManager` |
+| Mascot skins | Shop ▸ **สกินน้อง**: the 2D team's Katuii characters (gardener bunny - free, cool bunny 300, red-cap kid 200). Buy once with points, wear any you own; the helper in the bottom-left corner changes and faces away while you look around the shop. Edit names / prices in `Data/MascotSkins.asset`. | `MascotSkinCatalog`, `GameManager`, `SeedShopPanel`, `MascotHelper` |
+| Alert animations | Frame-by-frame mascot animations pop up above the pot with the problem: too hot, too cold, soil too wet, soil too dry (`Art/Alerts/*`, 5 frames played forward and back). Not tied to the skin. Tap one to open the plant; preview them in ทดสอบเกม. | `AlertAnimationLayer` |
+| Look around the shop | Drag on the 3D view to orbit, mouse wheel / pinch to zoom, right- or middle-drag to move. **กลับไปดูต้นไม้** (or `R`, or tapping a plant) glides back. The camera stays inside the shop's bounds. | `CameraRig`, `FreeLookHud` |
+| Real room from the sensors | When the ESP32 is online the room follows it instead of the Bangkok weather API: scene brightness = measured lux (cover the light sensor and the shop gets dark), the header shows the sensor temperature, and pots without their own sensor follow the measured temperature / light. Offline → back to the weather API. Pots not reported by the ESP32 keep the simulator. | `HttpPlantDataSource`, `EnvironmentState`, `DayNightCycle`, `SimulatedPlantDataSource` |
+| Save | Points, seeds, skins, pots, settings and custom species are saved to `smartplantpot_save.json` (path shown in **ทดสอบเกม**, which also has +100 points, skip day, grow fully, streak +3, mutate and reset). | `SaveData`, `GameManager` |
 
 **Linking the real pot:** turn on *ใช้เซนเซอร์จริง* in **เซนเซอร์จำลอง** and the game uses the ESP32 readings. Good real-life
 care then shows up in the game as quality, streak and higher prices, while bad care shows as alerts and a lost streak.

@@ -86,8 +86,9 @@ namespace SmartPlantPot
             if (weatherText != null)
             {
                 string t = DayNightCycle.PartOfDay(GameClock.HourOfDay) + " · " + WeatherService.Name(EnvironmentState.Weather);
-                if (!float.IsNaN(EnvironmentState.OutdoorTemperature))
-                    t = Mathf.RoundToInt(EnvironmentState.OutdoorTemperature) + "°C · " + t;
+                float temp = EnvironmentState.RoomTemperature;
+                if (!float.IsNaN(temp))
+                    t = Mathf.RoundToInt(temp) + "°C" + (EnvironmentState.SensorLive ? L.T(" เซนเซอร์", " sensor") : "") + " · " + t;
                 weatherText.text = ThaiShaper.Fix(t);
             }
             var ev = DailyEvents.Instance;

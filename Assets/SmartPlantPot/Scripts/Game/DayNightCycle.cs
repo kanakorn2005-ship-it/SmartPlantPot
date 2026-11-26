@@ -6,6 +6,8 @@ namespace SmartPlantPot
     /// Real-time day and night: the sun follows the local clock (or the Mock panel's hour), its
     /// colour warms at sunrise/sunset, the shop lamps switch on in the evening, the sky darkens at
     /// night and clouds/rain from WeatherService dim everything. Writes EnvironmentState.
+    /// While the real light sensor is online the brightness follows the measured lux instead
+    /// (cover the sensor and the shop gets dark); the sun direction still follows the clock.
     /// </summary>
     [DefaultExecutionOrder(-40)]
     [AddComponentMenu("Smart Plant Pot/Day Night Cycle")]
@@ -40,6 +42,7 @@ namespace SmartPlantPot
         public Color nightGround = new Color(0.07f, 0.07f, 0.08f);
 
         Material sky;
+        float sensorBrightness = 1f;
         float flash;
         float nextFlash;
 
@@ -95,6 +98,16 @@ namespace SmartPlantPot
             EnvironmentState.IsNight = !day;
             EnvironmentState.Daylight01 = dayness * (1f - 0.5f * cloud);
 
+            bool fromSensor = EnvironmentState.LightFromSensor;
+            if (fromSensor)
+            {
+                // the sensor already "sees" clouds, curtains and the room lamps
+                sensorBrightness = Mathf.MoveTowards(sensorBrightness, EnvironmentState.SensorBrightness01, Time.deltaTime * 0.8f);
+                dayness = sensorBrightness;
+                cloud = 0f;
+            }
+            else sensorBrightness = dayness;
+
             if (sun != null)
             {
                 float yaw = day ? noonYaw + Mathf.Lerp(-75f, 75f, t) : noonYaw + 160f;
@@ -102,6 +115,7 @@ namespace SmartPlantPot
                 sun.transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
                 float intensity = day ? Mathf.Lerp(0.25f, sunIntensity, elev01) * (1f - 0.75f * cloud)
                                       : moonIntensity * (1f - 0.6f * cloud);
+                if (fromSensor) intensity = Mathf.Lerp(0.03f, sunIntensity, dayness);
                 Color c = day ? Color.Lerp(dawnColor, dayColor, Mathf.Clamp01(elev01 * 2.5f)) : nightColor;
                 c = Color.Lerp(c, new Color(0.75f, 0.78f, 0.82f), cloud * 0.6f);
 
@@ -126,7 +140,8 @@ namespace SmartPlantPot
 
             if (lamps != null)
             {
-                float on = Mathf.Clamp01((0.45f - dayness) / 0.45f);
+                // with the sensor online the real room's lamps are already part of the measured light
+                float on = fromSensor ? dayness * 0.35f : Mathf.Clamp01((0.45f - dayness) / 0.45f);
                 foreach (var l in lamps)
                     if (l != null) l.intensity = lampIntensity * on;
             }

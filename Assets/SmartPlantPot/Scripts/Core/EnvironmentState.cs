@@ -33,6 +33,44 @@ namespace SmartPlantPot
         /// <summary>True once DayNightCycle runs (the 2D scene leaves this false).</summary>
         public static bool HasEnvironment;
 
+        // ---- the real room, from the ESP32 sensors (HttpPlantDataSource) ----
+
+        /// <summary>True while real sensor readings are arriving. The room then follows the
+        /// sensors (scene brightness, header temperature, simulated pots) instead of the weather API.</summary>
+        public static bool SensorLive;
+
+        /// <summary>Room temperature from the sensors, °C (NaN until known).</summary>
+        public static float SensorTemperature = float.NaN;
+
+        /// <summary>Light at the sensors, lux (NaN until known).</summary>
+        public static float SensorLux = float.NaN;
+
+        /// <summary>Air humidity from the DHT sensor, % (NaN until known).</summary>
+        public static float SensorHumidity = float.NaN;
+
+        /// <summary>Temperature the room is at: the sensors when live, else the outdoor weather.</summary>
+        public static float RoomTemperature
+        {
+            get { return SensorLive && !float.IsNaN(SensorTemperature) ? SensorTemperature : OutdoorTemperature; }
+        }
+
+        /// <summary>0..1 brightness from the sensor lux on a log scale (~3 lux = 0, ~300 = 0.5, 20,000+ = 1).</summary>
+        public static float SensorBrightness01
+        {
+            get
+            {
+                if (float.IsNaN(SensorLux)) return 1f;
+                float l = UnityEngine.Mathf.Log10(UnityEngine.Mathf.Max(1f, SensorLux));
+                return UnityEngine.Mathf.Clamp01((l - 0.5f) / (4.3f - 0.5f));
+            }
+        }
+
+        /// <summary>True when the scene lighting should follow the light sensor.</summary>
+        public static bool LightFromSensor
+        {
+            get { return SensorLive && !float.IsNaN(SensorLux); }
+        }
+
         public static bool IsRainy
         {
             get { return Weather == WeatherKind.Drizzle || Weather == WeatherKind.Rain || Weather == WeatherKind.Storm; }
@@ -65,6 +103,10 @@ namespace SmartPlantPot
             OutdoorTemperature = float.NaN;
             OutdoorHumidity = float.NaN;
             HasEnvironment = false;
+            SensorLive = false;
+            SensorTemperature = float.NaN;
+            SensorLux = float.NaN;
+            SensorHumidity = float.NaN;
             GameClock.ManualHour = -1f;
             GameClock.DayOffset = 0;
         }

@@ -21,6 +21,9 @@ namespace SmartPlantPot
         public float alertSeconds = 6f;
 
         NotificationCenter center;
+        Image bodyImage;
+        Sprite shownSprite;
+        bool cameraHintGiven;
         float messageUntil;
         float jumpStart = -10f;
         bool hiddenByCard;
@@ -30,12 +33,34 @@ namespace SmartPlantPot
         {
             center = NotificationCenter.Instance;
             if (center != null) center.AlertRaised += OnAlert;
+            if (body != null) bodyImage = body.GetComponent<Image>();
+            if (GameManager.Instance != null) GameManager.Instance.SkinChanged += OnSkinChanged;
             Say(L.HintTapPlant, 5f);
+        }
+
+        void OnSkinChanged()
+        {
+            jumpStart = Time.unscaledTime;   // hop in the new outfit
+            Say(L.T("ชุดใหม่สวยไหม~", "Like my new look?"), 2.5f);
+        }
+
+        /// <summary>The equipped skin (3D scene); faces away while the camera looks around the shop.</summary>
+        void ApplySkin()
+        {
+            if (bodyImage == null || GameManager.Instance == null) return;
+            var skin = GameManager.Instance.CurrentSkin;
+            if (skin == null) return;
+            bool lookingAround = CameraRig.Instance != null && CameraRig.Instance.IsFreeLook;
+            Sprite want = lookingAround && skin.back != null ? skin.back : skin.front;
+            if (want == null || want == shownSprite) return;
+            shownSprite = want;
+            bodyImage.sprite = want;
         }
 
         void OnDestroy()
         {
             if (center != null) center.AlertRaised -= OnAlert;
+            if (GameManager.Instance != null) GameManager.Instance.SkinChanged -= OnSkinChanged;
         }
 
         void OnAlert(PlantAlert alert)
@@ -54,6 +79,14 @@ namespace SmartPlantPot
         void Update()
         {
             float t = Time.unscaledTime;
+            ApplySkin();
+
+            // 3D shop: tell once that the room can be explored
+            if (!cameraHintGiven && CameraRig.Instance != null && t > 9f && t > messageUntil)
+            {
+                cameraHintGiven = true;
+                Say(L.T("ลากหน้าจอเพื่อหมุนกล้องดูร้านได้นะ", "Drag the screen to look around the shop"), 5f);
+            }
 
             if (t > messageUntil && bubbleText != null)
             {

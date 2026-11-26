@@ -25,6 +25,7 @@ namespace SmartPlantPot
         public HttpPlantDataSource http;
         public WeatherService weather;
         public DailyEvents events;
+        public MascotSkinCatalog skins;
 
         [Header("Economy")]
         public int startingPoints = 150;
@@ -42,7 +43,12 @@ namespace SmartPlantPot
         /// <summary>Points or inventory changed.</summary>
         public event Action Changed;
 
+        /// <summary>The equipped mascot skin changed.</summary>
+        public event Action SkinChanged;
+
         readonly Dictionary<string, int> inventory = new Dictionary<string, int>();
+        readonly HashSet<string> ownedSkins = new HashSet<string>();
+        string equippedSkin = "";
         readonly System.Random rng = new System.Random();
         SaveData loaded;
         string lastDay = "";
@@ -71,7 +77,71 @@ namespace SmartPlantPot
                 if (it != null && !string.IsNullOrEmpty(it.id) && it.count > 0) inventory[it.id] = it.count;
             GameClock.DayOffset = loaded.dayOffset;
             lastDay = loaded.lastDay;
+            LoadSkins(loaded);
             ApplySettings();
+        }
+
+        // ------------------------------------------------------------------ mascot skins
+
+        void LoadSkins(SaveData d)
+        {
+            ownedSkins.Clear();
+            if (d.ownedSkins != null)
+                foreach (var id in d.ownedSkins)
+                    if (!string.IsNullOrEmpty(id)) ownedSkins.Add(id);
+            if (skins != null)
+                foreach (var s in skins.skins)
+                    if (s != null && s.price <= 0) ownedSkins.Add(s.id);   // free skins are always yours
+            equippedSkin = d.equippedSkin;
+            if (skins == null || skins.Find(equippedSkin) == null || !ownedSkins.Contains(equippedSkin))
+                equippedSkin = skins != null && skins.Default != null ? skins.Default.id : "";
+        }
+
+        public bool OwnsSkin(MascotSkin s)
+        {
+            return s != null && (s.price <= 0 || ownedSkins.Contains(s.id));
+        }
+
+        public bool IsEquipped(MascotSkin s)
+        {
+            return s != null && s.id == equippedSkin;
+        }
+
+        /// <summary>The skin the mascot wears now (null in scenes without a skin catalog).</summary>
+        public MascotSkin CurrentSkin
+        {
+            get { return skins != null ? (skins.Find(equippedSkin) ?? skins.Default) : null; }
+        }
+
+        public bool BuySkin(MascotSkin s, out string message)
+        {
+            message = "";
+            if (s == null) return false;
+            if (OwnsSkin(s))
+            {
+                EquipSkin(s);
+                return true;
+            }
+            if (Points < s.price)
+            {
+                message = L.T("แต้มไม่พอ ต้องใช้ " + s.price + " แต้ม", "Not enough points - need " + s.price);
+                return false;
+            }
+            Points -= s.price;
+            ownedSkins.Add(s.id);
+            message = L.T("ได้สกิน " + s.DisplayName + " แล้ว (-" + s.price + " แต้ม)", "Got the " + s.DisplayName + " skin (-" + s.price + ")");
+            EquipSkin(s);
+            RaiseChanged();
+            return true;
+        }
+
+        public void EquipSkin(MascotSkin s)
+        {
+            if (s == null || !OwnsSkin(s) || s.id == equippedSkin) return;
+            equippedSkin = s.id;
+            dirty = true;
+            if (SkinChanged != null) SkinChanged();
+            RaiseChanged();
         }
 
         void OnDestroy()
@@ -313,7 +383,9 @@ namespace SmartPlantPot
                 http.readingsUrl = s.readingsUrl;
                 http.commandUrl = s.commandUrl;
             }
-            if (simulator != null) simulator.enabled = !s.useRealSensors;
+            // The simulator keeps running for pots the real sensors don't report (and follows the
+            // real room when sensors are online); the HTTP source takes over the pots it reports.
+            if (simulator != null) simulator.enabled = true;
             if (http != null) http.enabled = s.useRealSensors;
             if (weather != null)
             {
@@ -400,7 +472,9 @@ namespace SmartPlantPot
                     lastDay = lastDay,
                     dayOffset = GameClock.DayOffset,
                     settings = Settings,
-                    species = catalog != null ? catalog.ToConfigs() : new List<SpeciesConfig>()
+                    species = catalog != null ? catalog.ToConfigs() : new List<SpeciesConfig>(),
+                    ownedSkins = new List<string>(ownedSkins),
+                    equippedSkin = equippedSkin
                 };
                 foreach (var kv in inventory) d.inventory.Add(new InventoryItem { id = kv.Key, count = kv.Value });
                 foreach (var pot in PlantGrowth.All)
@@ -462,6 +536,8 @@ namespace SmartPlantPot
             loaded = new SaveData { points = startingPoints };
             Settings = loaded.settings;
             if (catalog != null) catalog.InitRuntime(null);
+            LoadSkins(loaded);
+            if (SkinChanged != null) SkinChanged();
             foreach (var pot in PlantGrowth.All) pot.Clear();
             lastDay = GameClock.TodayKey;
             ApplySettings();

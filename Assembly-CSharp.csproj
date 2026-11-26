@@ -70,6 +70,7 @@
   <ItemGroup>
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\EffectsLayer.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\ResponsiveLayout.cs" />
+    <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\AlertAnimationClick.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\NotificationCenter.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\LocalizedText.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Core\PlantUnit.cs" />
@@ -84,12 +85,15 @@
     <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\PotLabel.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\PotLabelLayer.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Core\PlantTypes.cs" />
+    <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\FreeLookHud.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\SafeAreaFitter.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\SeedShopPanel.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Core\L.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Game\DailyEvents.cs" />
+    <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\AlertAnimationLayer.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\PopupCardBase.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Game\SaveData.cs" />
+    <Compile Include="Assets\SmartPlantPot\Scripts\Game\MascotSkinCatalog.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI3D\CameraRig.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\UI\NotificationBell.cs" />
     <Compile Include="Assets\SmartPlantPot\Scripts\Dev\ClickProbe.cs" />

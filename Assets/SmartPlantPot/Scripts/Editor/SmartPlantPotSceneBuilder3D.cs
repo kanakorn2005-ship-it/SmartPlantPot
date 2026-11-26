@@ -200,9 +200,12 @@ namespace SmartPlantPot.EditorTools
             gm.http = http;
             gm.weather = weather;
             gm.events = events;
+            gm.skins = BuildSkinCatalog();
             foreach (var u in units)
                 sim.pots.Add(new SimulatedPlantDataSource.PotSim { plant = u, moisture = 55f, temperature = 28f, light = 900f });
             http.singlePotTarget = units[0];
+
+            rig.roomBounds = room;
 
             // ---------- UI ----------
             BuildUI3D(skin, cam, app, catalog);
@@ -348,6 +351,46 @@ namespace SmartPlantPot.EditorTools
             EditorUtility.SetDirty(catalog);
             AssetDatabase.SaveAssets();
             return catalog;
+        }
+
+        /// <summary>Mascot skins sold in the shop (the 2D team's Katuii characters). Keeps edited names / prices.</summary>
+        static MascotSkinCatalog BuildSkinCatalog()
+        {
+            string path = DataDir + "/MascotSkins.asset";
+            var cat = AssetDatabase.LoadAssetAtPath<MascotSkinCatalog>(path);
+            if (cat == null)
+            {
+                cat = ScriptableObject.CreateInstance<MascotSkinCatalog>();
+                cat.skins.Add(new MascotSkin { id = "bunny_hat", nameTh = "กระต่ายคนสวน", nameEn = "Gardener bunny", price = 0 });
+                cat.skins.Add(new MascotSkin { id = "bunny_glasses", nameTh = "กระต่ายแว่นเท่", nameEn = "Cool bunny", price = 300 });
+                cat.skins.Add(new MascotSkin { id = "boy", nameTh = "น้องหมวกแดง", nameEn = "Red-cap kid", price = 200 });
+                cat.defaultSkinId = "bunny_hat";
+                AssetDatabase.CreateAsset(cat, path);
+            }
+            string m = ArtDir + "/Mascots/";
+            foreach (var s in cat.skins)
+            {
+                string file = s.id == "bunny_hat" ? "mascot_bunny_hat" : s.id == "bunny_glasses" ? "mascot_bunny_glasses" : s.id == "boy" ? "mascot_boy" : null;
+                if (file == null) continue;
+                if (s.front == null) s.front = LoadSprite(m + file + ".png");
+                if (s.back == null) s.back = LoadSprite(m + file + "_back.png");
+            }
+            EditorUtility.SetDirty(cat);
+            AssetDatabase.SaveAssets();
+            return cat;
+        }
+
+        static Sprite[] AlertFrames(string kind)
+        {
+            var list = new List<Sprite>();
+            for (int i = 0; i < 12; i++)
+            {
+                var sp = LoadSprite(ArtDir + "/Alerts/" + kind + "/" + kind + "_" + i + ".png");
+                if (sp == null) break;
+                list.Add(sp);
+            }
+            if (list.Count == 0) Debug.LogWarning("[SmartPlantPot] No alert frames found for " + kind);
+            return list.ToArray();
         }
 
         static void SetGame(PlantSpecies s, string id, GameObject model, string seed, int seedPrice, int sellPrice, int daily, float minutes)
@@ -606,6 +649,18 @@ namespace SmartPlantPot.EditorTools
             headerBg.transform.SetAsFirstSibling();
             var chips = AddHeaderChips(header, skin);
 
+            // the 2D team's alert animations, above the pot that has the problem
+            var alerts = UIFactory.Rect(safe, "AlertAnimations");
+            UIFactory.Stretch(alerts);
+            var alertLayer = alerts.gameObject.AddComponent<AlertAnimationLayer>();
+            alertLayer.worldCamera = cam;
+            alertLayer.tooHot = AlertFrames("too_hot");
+            alertLayer.tooCold = AlertFrames("too_cold");
+            alertLayer.tooWet = AlertFrames("too_wet");
+            alertLayer.tooDry = AlertFrames("too_dry");
+
+            BuildFreeLookHud(safe, skin, cam.GetComponent<CameraRig>());
+
             var mascot = BuildMascot(safe, skin);
             var card = BuildInfoCard(safe, skin, catalog.builtIn.Count > 0 ? catalog.builtIn[0] : null);
             card.landscapeWidth = 620f;
@@ -641,6 +696,29 @@ namespace SmartPlantPot.EditorTools
             layout.toastStack = toasts;
             layout.historyPanel = (RectTransform)panel.transform;
             layout.infoCard = card;
+        }
+
+        static void BuildFreeLookHud(RectTransform safe, UISkin skin, CameraRig rig)
+        {
+            var root = UIFactory.Rect(safe, "FreeLookHud");
+            UIFactory.Place(root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 28f), new Vector2(820f, 116f));
+            root.gameObject.AddComponent<CanvasGroup>();
+
+            var btn = UIFactory.Button(root, "Reset", L.T("กลับไปดูต้นไม้", "Back to the plants"), skin.iconSprout, skin.accent, Color.white, 22, 30f, 60f);
+            LocalizedText.Attach(btn.transform.Find("Label").GetComponent<Text>(), "กลับไปดูต้นไม้", "Back to the plants");
+            UIFactory.Place((RectTransform)btn.transform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(330f, 60f));
+            UIFactory.Shadow((RectTransform)btn.transform, 18f, 0.2f, -5f);
+
+            var hintBg = UIFactory.Rounded(root, "Hint", UISkin.WithAlpha(skin.textPrimary, 0.55f), 16f);
+            UIFactory.Place(hintBg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 72f), new Vector2(820f, 38f));
+            var hint = UIFactory.Text(hintBg.transform, "Text", "", 17, Color.white, TextAnchor.MiddleCenter);
+            UIFactory.Stretch(hint.rectTransform);
+            hint.raycastTarget = false;
+
+            var hud = root.gameObject.AddComponent<FreeLookHud>();
+            hud.rig = rig;
+            hud.resetButton = btn;
+            hud.hintText = hint;
         }
 
         static HeaderGameChips AddHeaderChips(RectTransform header, UISkin skin)
@@ -943,7 +1021,7 @@ namespace SmartPlantPot.EditorTools
             GameObject root;
             var win = ModalShell(safe, "SeedShop", skin, new Vector2(0.08f, 0.07f), new Vector2(0.92f, 0.9f), out root);
             RectTransform head;
-            var close = ModalHeader(win, "ร้านเมล็ดพันธุ์", "Seed shop", skin.iconStore, skin, out head);
+            var close = ModalHeader(win, "ร้านค้า", "Shop", skin.iconStore, skin, out head);
 
             var pts = UIFactory.Rounded(head, "Points", skin.surface, 24f);
             UIFactory.HRow(pts.gameObject, 8f, UIFactory.Pad(16, 8), TextAnchor.MiddleCenter);
@@ -958,11 +1036,20 @@ namespace SmartPlantPot.EditorTools
             note.rectTransform.anchorMin = new Vector2(0f, 1f);
             note.rectTransform.anchorMax = new Vector2(1f, 1f);
             note.rectTransform.pivot = new Vector2(0.5f, 1f);
-            note.rectTransform.anchoredPosition = new Vector2(0f, -92f);
+            note.rectTransform.anchoredPosition = new Vector2(0f, -150f);
             note.rectTransform.sizeDelta = new Vector2(-64f, 40f);
 
+            var tabs = UIFactory.Rect(win, "Tabs");
+            tabs.anchorMin = new Vector2(0f, 1f);
+            tabs.anchorMax = new Vector2(1f, 1f);
+            tabs.pivot = new Vector2(0.5f, 1f);
+            tabs.anchoredPosition = new Vector2(0f, -94f);
+            tabs.sizeDelta = new Vector2(-56f, 52f);
+            var tabRow = UIFactory.HRow(tabs.gameObject, 10f, UIFactory.Pad(0), TextAnchor.MiddleLeft);
+            tabRow.childForceExpandWidth = false;
+
             RectTransform content;
-            ScrollArea(win, 138f, 24f, out content, true);
+            ScrollArea(win, 196f, 24f, out content, true);
 
             var p = root.AddComponent<SeedShopPanel>();
             p.window = win;
@@ -970,6 +1057,7 @@ namespace SmartPlantPot.EditorTools
             p.grid = content;
             p.pointsText = pText;
             p.noteText = note;
+            p.tabBar = tabs;
             root.AddComponent<ModalBackdrop>().panel = p;
             root.GetComponent<CanvasGroup>().alpha = 0f;
             return p;

@@ -80,6 +80,7 @@ namespace SmartPlantPot
 
             foreach (var plant in PlantUnit.All)
             {
+                if (HttpPlantDataSource.IsReal(plant)) continue;   // the real sensors report this pot
                 var s = GetSim(plant);
 
                 // Water soaks in over a couple of seconds instead of jumping.
@@ -101,12 +102,25 @@ namespace SmartPlantPot
 
                 float wave = Mathf.Sin(simTime * (Mathf.PI * 2f / 180f) + s.seed * 6.283f);
                 float jitter = (Mathf.PerlinNoise(simTime * 0.05f, s.seed * 10f) - 0.5f) * 0.6f;
+                float l = Mathf.PerlinNoise(simTime * 0.04f + 100f, s.seed * 7f) * 2f - 1f;
+
+                if (followEnvironment && EnvironmentState.SensorLive)
+                {
+                    // Real sensors online: these pots stand in the same room, so they follow the
+                    // measured temperature and light (each spot a little different).
+                    float spot = (s.seed - 0.5f) * 2f;   // -1..1, fixed per pot
+                    if (!float.IsNaN(EnvironmentState.SensorTemperature))
+                        s.temperature = EnvironmentState.SensorTemperature + spot * 0.6f + jitter * 0.5f;
+                    if (!float.IsNaN(EnvironmentState.SensorLux))
+                        s.light = Mathf.Max(0f, EnvironmentState.SensorLux * (1f + spot * 0.12f + l * 0.05f));
+                    continue;
+                }
+
                 float baseTemp = s.baseTemperature;
                 if (followEnvironment && EnvironmentState.HasEnvironment && !float.IsNaN(EnvironmentState.OutdoorTemperature))
                     baseTemp = Mathf.Lerp(s.baseTemperature, EnvironmentState.OutdoorTemperature, 0.45f);
                 s.temperature = baseTemp + wave * temperatureSwing + jitter;
 
-                float l = Mathf.PerlinNoise(simTime * 0.04f + 100f, s.seed * 7f) * 2f - 1f;
                 float daylight = 1f;
                 if (followEnvironment && EnvironmentState.HasEnvironment)
                     daylight = Mathf.Lerp(0.04f, 1f, EnvironmentState.Daylight01) * (1f - 0.6f * EnvironmentState.CloudFactor);
@@ -125,6 +139,7 @@ namespace SmartPlantPot
         {
             foreach (var plant in PlantUnit.All)
             {
+                if (HttpPlantDataSource.IsReal(plant)) continue;
                 var s = GetSim(plant);
                 plant.ApplyReading(new SensorReading(s.moisture, s.temperature, s.light));
             }

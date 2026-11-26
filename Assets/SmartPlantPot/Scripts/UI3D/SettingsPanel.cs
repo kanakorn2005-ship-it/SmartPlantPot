@@ -327,6 +327,22 @@ namespace SmartPlantPot
                 {
                     if (gm.http != null) gm.http.PollNow();
                 });
+                var room = UIKit.Note(content, "", 19);
+                live.Add(() =>
+                {
+                    string t;
+                    if (EnvironmentState.SensorLive)
+                    {
+                        t = L.T("สภาพห้องจากเซนเซอร์: ", "Room from the sensors: ");
+                        if (!float.IsNaN(EnvironmentState.SensorTemperature)) t += EnvironmentState.SensorTemperature.ToString("0.0") + "°C  ";
+                        if (!float.IsNaN(EnvironmentState.SensorLux)) t += Mathf.RoundToInt(EnvironmentState.SensorLux) + " lux  ";
+                        if (!float.IsNaN(EnvironmentState.SensorHumidity)) t += L.T("อากาศชื้น ", "air ") + Mathf.RoundToInt(EnvironmentState.SensorHumidity) + "%";
+                        t += L.T("\nใช้แทนอากาศกรุงเทพ: ความสว่างในฉาก อุณหภูมิบนแถบด้านบน และกระถางที่ไม่มีเซนเซอร์จะตามค่านี้",
+                            "\nUsed instead of the weather API: scene brightness, the header temperature and pots without sensors follow it");
+                    }
+                    else t = L.T("ยังไม่ได้รับค่าจากเซนเซอร์ - ตอนนี้ใช้อากาศกรุงเทพจริงไปก่อน", "No sensor data yet - using the real Bangkok weather for now");
+                    room.text = ThaiShaper.Fix(t);
+                });
                 UIKit.Note(content, L.T("JSON ที่รับ: {\"pots\":[{\"id\":\"pot-01\",\"moisture\":35,\"temperature\":29,\"light\":520}]}",
                     "Expected JSON: {\"pots\":[{\"id\":\"pot-01\",\"moisture\":35,\"temperature\":29,\"light\":520}]}"));
                 return;
@@ -601,6 +617,18 @@ namespace SmartPlantPot
 
         // ================================================================== 5. game test
 
+        void AnimButton(Transform row, string label, PlantMetric metric, MetricStatus status, Color color)
+        {
+            UIKit.SmallButton(row, label, Skin.iconSparkles, UISkin.WithAlpha(color, 0.15f), Skin.textPrimary, () =>
+            {
+                var layer = AlertAnimationLayer.Instance;
+                var plant = PlantSelection.Current != null ? PlantSelection.Current : (PlantUnit.All.Count > 0 ? PlantUnit.All[0] : null);
+                if (layer == null || plant == null) return;
+                Close();   // so the pot is visible
+                layer.Play(plant, metric, status);
+            });
+        }
+
         void BuildDebug()
         {
             var gm = GameManager.Instance;
@@ -649,6 +677,13 @@ namespace SmartPlantPot
                 gm.MarkDirty();
                 Post(g.plant.DisplayName, L.T("กลายพันธุ์เป็น ", "Mutated to ") + MutationInfo.Name(g.mutation), AlertKind.GameEvent);
             });
+
+            UIKit.Note(content, L.T("ดูแอนิเมชันแจ้งเตือนบนกระถางที่เลือก (หรือกระถางแรก)", "Preview the alert animations on the selected pot (or the first pot)"), 17);
+            var row3 = UIKit.Row(content, "Row3", 48f, 8f);
+            AnimButton(row3, L.T("ร้อนไป", "Too hot"), PlantMetric.Temperature, MetricStatus.High, Skin.statusHigh);
+            AnimButton(row3, L.T("หนาวไป", "Too cold"), PlantMetric.Temperature, MetricStatus.Low, Skin.water);
+            AnimButton(row3, L.T("น้ำเยอะไป", "Too wet"), PlantMetric.Moisture, MetricStatus.High, Skin.water);
+            AnimButton(row3, L.T("ดินแห้งไป", "Too dry"), PlantMetric.Moisture, MetricStatus.Low, Skin.statusLow);
 
             UIKit.LabeledSlider(content, L.T("ความเร็วการโต (สำหรับเดโม)", "Growth speed (for demos)"), 1f, 30f, s.growthSpeed, true, v => "x" + Mathf.RoundToInt(v), v =>
             {

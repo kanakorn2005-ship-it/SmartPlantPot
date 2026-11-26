@@ -25,6 +25,7 @@ namespace SmartPlantPot
         public void OnPointerClick(PointerEventData eventData)
         {
             if (eventData.button != PointerEventData.InputButton.Left || plant == null) return;
+            if (CameraRig.BlocksClick) return;   // that was a camera drag (3D free look), not a tap
             // The squash-and-release bounce comes from OnPointerDown / OnPointerUp.
             PlantSelection.Toggle(plant);
         }
